@@ -17,9 +17,18 @@ public class Xordazh extends Robot {
     public LinearOpMode opMode;
 
     private GamepadEx player1;
+    public GamepadEx getPlayer1() {
+        return player1;
+    }
     private GamepadEx player2;
+    public GamepadEx getPlayer2() {
+        return player2;
+    }
 
     private MecanumDrive drive;
+    public MecanumDrive getDrive() {
+        return drive;
+    }
 
     public Xordazh(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -41,7 +50,7 @@ public class Xordazh extends Robot {
         // throw-away pose because we're not localizing anymore
         drive = new MecanumDrive(this, new Pose2d(0,0,new Rotation2d(1, 0)));
         register(drive);
-        drive.setDefaultCommand(new DriveCommand(drive));
+        drive.setDefaultCommand(new DriveCommand(this));
 
         /*
                 .__                                      ____

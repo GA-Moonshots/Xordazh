@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Camera {
     private final AprilTagProcessor aprilTag;
-    private DashboardStreamProcessor dashboardStream;
+    private final DashboardStreamProcessor dashboardStream;
     private final VisionPortal visionPortal;
 
     public Camera(HardwareMap hardwareMap, Telemetry telemetry) {
