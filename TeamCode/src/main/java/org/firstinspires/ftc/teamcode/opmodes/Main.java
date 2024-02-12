@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-
 import com.arcrobotics.ftclib.command.Robot;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Xordazh;
 
-public class Tele extends CommandOpMode {
+@TeleOp(name = "Main")
+public class Main extends CommandOpMode {
 
     @Override
     public void initialize() {

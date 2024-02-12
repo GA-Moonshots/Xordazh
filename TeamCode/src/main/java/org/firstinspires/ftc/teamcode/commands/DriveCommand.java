@@ -39,6 +39,17 @@ public class DriveCommand extends CommandBase {
 
         // Drive the robot with adjusted inputs:
         drive.drive(forward * speedMod, strafe * speedMod, turn * speedMod);
+    }
 
+    /**
+     * This command never ends
+     * @return false
+     */
+    @Override
+    public boolean isFinished() { return false; }
+
+    @Override
+    public void end(boolean interrupted){
+        drive.stop();
     }
 }

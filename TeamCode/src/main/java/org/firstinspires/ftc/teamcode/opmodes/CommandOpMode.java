@@ -9,7 +9,6 @@ import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TeleOp - Primary")
 public abstract class CommandOpMode extends LinearOpMode {
     /**
      * Cancels all previous commands
@@ -40,17 +39,21 @@ public abstract class CommandOpMode extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         initialize();
-
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
         waitForStart();
 
         // run the scheduler
         while (!isStopRequested() && opModeIsActive()) {
             run();
+            telemetry.addData("Status", "Running");
             telemetry.update();
         }
+        telemetry.addData("Status", "Stopping");
+        telemetry.update();
         reset();
     }
 

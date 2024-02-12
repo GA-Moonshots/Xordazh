@@ -49,6 +49,8 @@ public class Xordazh extends Robot {
     private void initTele() {
         // throw-away pose because we're not localizing anymore
         drive = new MecanumDrive(this, new Pose2d(0,0,new Rotation2d(1, 0)));
+        this.opMode.telemetry.addData("Status", "Initialize Finished");
+        this.opMode.telemetry.update();
         register(drive);
         drive.setDefaultCommand(new DriveCommand(this));
 
@@ -62,20 +64,15 @@ public class Xordazh extends Robot {
         */
         Button aButtonP1 = new GamepadButton(player1, GamepadKeys.Button.A);
         aButtonP1.whenPressed(new InstantCommand(() -> {
-            drive.toggleFieldCentric();
+            if(!this.opMode.gamepad1.start)
+                drive.toggleFieldCentric();
         }));
 
         Button bButtonP1 = new GamepadButton(player1, GamepadKeys.Button.B);
         bButtonP1.whenPressed(new InstantCommand(() -> {
-            drive.resetFieldCentricTarget();
+            if(!this.opMode.gamepad1.start)
+                drive.resetFieldCentricTarget();
         }));
-
-        Button xButtonP1 = new GamepadButton(player1, GamepadKeys.Button.X);
-        Button yButtonP1 = new GamepadButton(player1, GamepadKeys.Button.Y);
-        Button dPadUpP1 = new GamepadButton(player1, GamepadKeys.Button.DPAD_UP);
-        Button dPadDownP1 = new GamepadButton(player1, GamepadKeys.Button.DPAD_DOWN);
-        Button dPadLeftP1 = new GamepadButton(player1, GamepadKeys.Button.DPAD_LEFT);
-        Button dPadRightP1 = new GamepadButton(player1, GamepadKeys.Button.DPAD_RIGHT);
 
         /*
                 _                                    __
