@@ -42,18 +42,13 @@ public abstract class CommandOpMode extends LinearOpMode {
     public void runOpMode() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         initialize();
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
         waitForStart();
 
         // run the scheduler
         while (!isStopRequested() && opModeIsActive()) {
             run();
-            telemetry.addData("Status", "Running");
             telemetry.update();
         }
-        telemetry.addData("Status", "Stopping");
-        telemetry.update();
         reset();
     }
 

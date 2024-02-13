@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Xordazh;
 import org.firstinspires.ftc.teamcode.config.DriveConfig;
 import org.firstinspires.ftc.teamcode.config.HardwareNames;
 import org.firstinspires.ftc.teamcode.config.OdometryConfig;
+import org.firstinspires.ftc.teamcode.sensors.Odometry;
 
 import java.util.Optional;
 
@@ -25,11 +26,7 @@ public class MecanumDrive extends SubsystemBase {
     private final MotorEx rightBack;
     private final MotorEx rightFront;
 
-    private final Motor.Encoder leftEncoder;
-    private final Motor.Encoder rightEncoder;
-    private final Motor.Encoder centerEncoder;
-
-    private final HolonomicOdometry odometry;
+    private final Odometry odometry;
 
     private final Telemetry telemetry;
 
@@ -54,19 +51,7 @@ public class MecanumDrive extends SubsystemBase {
 
         this.fieldCentricTarget = startingPosition.getHeading();
 
-        this.leftEncoder = this.leftFront.encoder
-                .setDistancePerPulse(OdometryConfig.IN_PER_TICK);
-        this.rightEncoder = this.rightFront.encoder
-                .setDistancePerPulse(OdometryConfig.MM_PER_TICK);
-        this.centerEncoder = this.leftBack.encoder
-                .setDistancePerPulse(OdometryConfig.MM_PER_TICK);
-
-        this.odometry = new HolonomicOdometry(
-                this.leftEncoder::getDistance,
-                this.rightEncoder::getDistance,
-                this.centerEncoder::getDistance,
-                OdometryConfig.PARALLEL_DISTANCE_MM, OdometryConfig.PERPENDICULAR_DISTANCE_MM
-        );
+        this.odometry = new Odometry(hardwareMap, robot.opMode.telemetry);
 
         this.odometry.updatePose(startingPosition);
         this.telemetry = robot.opMode.telemetry;
@@ -114,16 +99,7 @@ public class MecanumDrive extends SubsystemBase {
                 rf * (DriveConfig.MOTOR_MAX_SPEED / powCap)
         );
 
-        telemetry.addData("Odometry Encoders", "(%s, %s, %s)",
-                this.leftEncoder.getDistance(),
-                this.rightEncoder.getDistance(),
-                this.centerEncoder.getDistance()
-        );
-        telemetry.addData("Odometry", "(%.2f, %.2f, %.2f)",
-                this.odometry.getPose().getX(),
-                this.odometry.getPose().getY(),
-                this.odometry.getPose().getHeading()
-        );
+        this.odometry.addData();
     }
 
     public void drive(double lf, double lb, double rb, double rf) {
