@@ -19,11 +19,9 @@ public class Odometry extends com.arcrobotics.ftclib.kinematics.Odometry {
     protected double centerWheelOffset;
     protected Telemetry telemetry;
 
-    // the suppliers
-    protected DoubleSupplier m_left, m_right, m_horizontal;
     protected Motor.Encoder left, right, center;
-
-    protected double dx, dy, w;
+    // Double representations
+    protected double dx, dy, dw;
 
     private Odometry(Pose2d initialPose, double trackWidth, double centerWheelOffset) {
         super(initialPose, trackWidth);
@@ -46,10 +44,9 @@ public class Odometry extends com.arcrobotics.ftclib.kinematics.Odometry {
                 .setDistancePerPulse(OdometryConfig.IN_PER_TICK);
 
         this.telemetry = telemetry;
-        this.m_horizontal = center::getDistance;
-        this.m_right = right::getDistance;
-        this.m_left = left::getDistance;
-
+        this.left.reset();
+        this.right.reset();
+        this.center.reset();
     }
 
     /**
@@ -57,7 +54,7 @@ public class Odometry extends com.arcrobotics.ftclib.kinematics.Odometry {
      */
     @Override
     public void updatePose() {
-        update(m_left.getAsDouble(), m_right.getAsDouble(), m_horizontal.getAsDouble());
+        update(this.left.getDistance(), this.right.getDistance(), this.center.getDistance());
     }
 
     @Override
@@ -65,9 +62,9 @@ public class Odometry extends com.arcrobotics.ftclib.kinematics.Odometry {
         previousAngle = pose.getRotation();
         robotPose = pose;
 
-        prevLeftEncoder = m_left.getAsDouble();
-        prevRightEncoder = m_right.getAsDouble();
-        prevHorizontalEncoder = m_horizontal.getAsDouble();
+        prevLeftEncoder = this.left.getDistance();
+        prevRightEncoder = this.right.getDistance();
+        prevHorizontalEncoder = this.center.getDistance();
     }
 
     public void update(double leftEncoderPos, double rightEncoderPos, double horizontalEncoderPos) {
@@ -75,28 +72,25 @@ public class Odometry extends com.arcrobotics.ftclib.kinematics.Odometry {
         double deltaRightEncoder = rightEncoderPos - prevRightEncoder;
         double deltaHorizontalEncoder = horizontalEncoderPos - prevHorizontalEncoder;
 
-        Rotation2d angle = previousAngle.plus(
-                new Rotation2d(
-                        (deltaLeftEncoder - deltaRightEncoder) / trackWidth
-                )
-        );
+        // w, or omega, is a rotational speed
+        Rotation2d w = new Rotation2d((deltaLeftEncoder - deltaRightEncoder) / trackWidth);
 
         prevLeftEncoder = leftEncoderPos;
         prevRightEncoder = rightEncoderPos;
         prevHorizontalEncoder = horizontalEncoderPos;
 
-        double dw = (angle.minus(previousAngle).getRadians());
 
-        double dx = (deltaLeftEncoder + deltaRightEncoder) / 2;
-        double dy = deltaHorizontalEncoder - (centerWheelOffset * dw);
+        dx = (deltaLeftEncoder + deltaRightEncoder) / 2;
+        dy = deltaHorizontalEncoder - (centerWheelOffset * w.getRadians());
+        dw = w.getRadians();
 
         Twist2d twist2d = new Twist2d(dx, dy, dw);
 
         Pose2d newPose = robotPose.exp(twist2d);
 
-        previousAngle = angle;
+        previousAngle = w.plus(previousAngle);
 
-        robotPose = new Pose2d(newPose.getTranslation(), angle);
+        robotPose = new Pose2d(newPose.getTranslation(), w);
     }
 
     public void addData() {
@@ -105,10 +99,13 @@ public class Odometry extends com.arcrobotics.ftclib.kinematics.Odometry {
         telemetry.addData("Odometry Center Velocity", center.getCorrectedVelocity());
         telemetry.addData("Odometry X Velocity", dx);
         telemetry.addData("Odometry Y Velocity", dy);
-        telemetry.addData("Odometry Heading Velocity", w);
+        telemetry.addData("Odometry Heading Velocity", dw);
         telemetry.addData("Odometry Left Encoder Value", left.getPosition());
         telemetry.addData("Odometry Right Encoder Value", right.getPosition());
         telemetry.addData("Odometry Center Encoder Value", center.getPosition());
+        telemetry.addData("Odometry Left Encoder Distance", left.getDistance());
+        telemetry.addData("Odometry Right Encoder Distance", right.getDistance());
+        telemetry.addData("Odometry Center Encoder Distance", center.getDistance());
         telemetry.addData("Odometry X Position", getX());
         telemetry.addData("Odometry Y Position", getY());
         telemetry.addData("Odometry Heading", Math.toDegrees(getHeading()));
